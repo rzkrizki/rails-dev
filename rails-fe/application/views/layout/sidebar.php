@@ -14,7 +14,7 @@
                 <img src="<?= base_url() ?>/assets/template/dist/img/avatar2.png" class="img-circle elevation-2" alt="User Image">
             </div>
             <div class="info">
-                <a href="#" class="d-block">Rizki Ramadhan</a>
+                <a href="#" class="d-block"><?= ucwords($this->session->userdata('name')) ?></a>
             </div>
         </div>
 

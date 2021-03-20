@@ -19,12 +19,12 @@
                     <td><span class="badge badge-info"><?= $row->priority ?></span></td>
                     <td nowrap>
                         <?php if($row->is_done == 0){ ?>
-                            <button class="btn btn-success" data-toggle="tooltip" title="Tandai sudah selesai" onclick="update(` <?= $row->id ?>`)"><i class="fa fa-check"></i></button>
+                            <button class="btn btn-success" data-toggle="tooltip" title="Tandai sudah selesai" onclick="update(` <?= $row->id ?>`, 1)"><i class="fa fa-check"></i></button>
                         <?php }else{ ?>
-                            <button class="btn btn-success" data-toggle="tooltip" title="Sudah ditandai selesai" disabled><i class="fa fa-check"></i></button>
+                            <button class="btn btn-danger" data-toggle="tooltip" title="Batalkan yang sudah ditandai" onclick="update(` <?= $row->id ?>`, 0)"><i class="fa fa-times"></i></button>
                         <?php } ?>
-                        <button class="btn btn-warning text-bold text-white" data-toggle="tooltip" title="Edit task">Edit</button>
-                        <button class="btn btn-danger text-bold" data-toggle="tooltip" title="Delete task" onclick="remove(` <?= $row->id ?>`)">Delete</button>
+                        <button class="btn btn-warning text-bold text-white" data-toggle="tooltip" title="Edit task" onclick="openModal(`<?= $row->id ?>`, `edit`)">Edit</button>
+                        <button class="btn btn-danger text-bold" data-toggle="tooltip" title="Delete task" onclick="confirmation(`<?= $row->id ?>`)">Delete</button>
                     </td>
                 </tr>
             <?php } ?>
@@ -52,7 +52,7 @@ $(function () {
 
     //Date range picker
     $('#reservationdate').datetimepicker({
-        format: 'L'
+        format: 'YYYY-MM-DD'
     });
   });
 </script>

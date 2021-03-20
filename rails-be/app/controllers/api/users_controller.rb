@@ -2,16 +2,16 @@ module Api
     class UsersController < ApplicationController
         def index
             users = User.order('created_at DESC');
-            render json: {status: 'SUCCESS', message:'Loaded users data', data:users},status: :ok
+            render json: {status: 'success', message:'Loaded users data', data:users},status: :ok
         end
 
         def show
             if User.exists?(id: params[:id])
                 user = User.find(params[:id]);
-                render json: {status: 'SUCCESS', message:'Loaded user id', data:user},
+                render json: {status: 'success', message:'Loaded user id', data:user},
                 status: :ok
             else
-                render json: {status: 'Failed', message:'User not Found',
+                render json: {status: 'failed', message:'User not Found',
                 data:[]},
                 status: :unprocessable_entity
             end
@@ -21,14 +21,14 @@ module Api
             user = User.new(user_params)
 
             if(User.exists?(username: params[:username]))
-                render json: {status: 'FAILED', message:'Username has been registered', data:user},
+                render json: {status: 'failed', message:'Username has been registered', data:user},
                 status: :ok
             else
                 if user.save
-                    render json: {status: 'SUCCESS', message:'Saved user', data:user},
+                    render json: {status: 'success', message:'Saved user', data:user},
                     status: :ok
                 else
-                    render json: {status: 'ERROR', message:'User not saved',
+                    render json: {status: 'error', message:'User not saved',
                     data:user.errors},
                     status: :unprocessable_entity
                 end
@@ -39,10 +39,10 @@ module Api
             if User.exists?(id: params[:id])
                 user = User.find(params[:id]);
                 user.destroy
-                render json: {status: 'SUCCESS', message:'Deleted user', data:user},
+                render json: {status: 'success', message:'User Deleted', data:user},
                 status: :ok
             else
-                render json: {status: 'Failed', message:'User not Found',
+                render json: {status: 'failed', message:'User not Found',
                 data:[]},
                 status: :unprocessable_entity
             end
@@ -52,15 +52,15 @@ module Api
             if User.exists?(id: params[:id])
                 user = User.find(params[:id]);
                 if user.update(user_params)
-                    render json: {status: 'SUCCESS', message:'Update user', data:user},
+                    render json: {status: 'success', message:'Success Updated', data:user},
                     status: :ok
                 else
-                    render json: {status: 'ERROR', message:'User not update',
+                    render json: {status: 'error', message:'Failed Updated',
                     data:user.errors},
                     status: :unprocessable_entity
                 end
             else
-                render json: {status: 'Failed', message:'User not Found',
+                render json: {status: 'failed', message:'User not Found',
                 data:[]},
                 status: :unprocessable_entity
             end

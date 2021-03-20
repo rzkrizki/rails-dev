@@ -1,17 +1,17 @@
 module Api
     class TasksController < ApplicationController
         def index
-            tasks = Task.where(user_id: params[:user_id]).order('created_at DESC');
-            render json: {status: 'SUCCESS', message:'Loaded task data', data:tasks},status: :ok
+            tasks = Task.order('created_at DESC');
+            render json: {status: 'success', message:'Loaded task data', data:tasks},status: :ok
         end
 
         def show
             if Task.exists?(id: params[:id])
                 task = Task.find(params[:id]);
-                render json: {status: 'SUCCESS', message:'Loaded task id', data:task},
+                render json: {status: 'success', message:'Loaded task id', data:task},
                 status: :ok
             else
-                render json: {status: 'Failed', message:'User not Found',
+                render json: {status: 'failed', message:'User not Found',
                 data:[]},
                 status: :unprocessable_entity
             end
@@ -21,10 +21,10 @@ module Api
             task = Task.new(task_params)
 
             if task.save
-                render json: {status: 'SUCCESS', message:'Saved task', data:task},
+                render json: {status: 'success', message:'Saved task', data:task},
                 status: :ok
             else
-                render json: {status: 'ERROR', message:'Task not saved',
+                render json: {status: 'error', message:'Task not saved',
                 data:task.errors},
                 status: :unprocessable_entity
             end
@@ -33,10 +33,10 @@ module Api
         def destroy
             if Task.exists?(id: params[:id])
                 Task.destroy(params[:id])
-                render json: {status: 'SUCCESS', message:'Deleted task'},
+                render json: {status: 'success', message:'Task Deleted'},
                 status: :ok
             else
-                render json: {status: 'Failed', message:'User not Found',
+                render json: {status: 'failed', message:'User not Found',
                 data:[]},
                 status: :unprocessable_entity
             end
@@ -48,15 +48,15 @@ module Api
             if Task.exists?(id: params[:id])
                 task = Task.find(params[:id]);
                 if task.update(task_params)
-                    render json: {status: 'SUCCESS', message:'Update task', data:task},
+                    render json: {status: 'success', message:'Task updated', data:task},
                     status: :ok
                 else
-                    render json: {status: 'ERROR', message:'Task not update',
+                    render json: {status: 'error', message:'Task not updated',
                     data:task.errors},
                     status: :unprocessable_entity
                 end
             else
-                render json: {status: 'Failed', message:'User not Found',
+                render json: {status: 'failed', message:'User not Found',
                 data:[]},
                 status: :unprocessable_entity
             end

@@ -6,7 +6,7 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title"><button class="btn btn-primary" onclick="openModal()">Add Your Task</i></button></h3>
+                            <h3 class="card-title"><button class="btn btn-primary" onclick="openModal(0, `add`)">Add Your Task</i></button></h3>
                         </div>
                         <!-- /.card-header -->
                         <div class="card-body" id="tableDiv">
@@ -28,12 +28,13 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Add Task</h4>
+                <h4 class="modal-title">Task From</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
+                <input type="text" id="task_id" hidden>
                 <div class="form-group">
                     <label>Date:</label>
                     <div class="input-group date" id="reservationdate" data-target-input="nearest">
@@ -54,7 +55,7 @@
                 </div>
             </div>
             <div class="modal-footer justify-content-between">
-                <button onclick="save()" type="button" class="btn btn-primary btn-block">Save your task</button>
+                <button onclick="check()" type="button" class="btn btn-primary btn-block">Save your task</button>
             </div>
         </div>
         <!-- /.modal-content -->
@@ -67,98 +68,191 @@
     document.addEventListener("DOMContentLoaded", function(event) {
         load_tab();
     })
-    function openModal() {
-        $('#taskModal').modal('show');
-    }
 
-    function load_tab(){
+    function load_tab() {
         $("#tableDiv").empty();
         $.ajax({
-            type:'GET',
-            url:"<?php echo base_url(); ?>todolist/get_todolist/",
-            success:function(msg){
+            type: 'GET',
+            url: "<?php echo base_url(); ?>todolist/get_todolist/",
+            success: function(msg) {
                 $("#tableDiv").html(msg);
             },
-            error: function()
-            {
+            error: function() {
                 $("#tableDiv").html("Error");
             },
-            fail:(function(status) {
+            fail: (function(status) {
                 $("#tableDiv").html("Fail");
             }),
-            beforeSend:function(d){
+            beforeSend: function(d) {
                 $("#tableDiv").html("<center id='spinner'><strong style='color: #777'>Please Wait...</strong></center>");
             }
         });
     }
 
-    function save()
-    {
+    function openModal(id, type) {
+        if(type == 'add'){
+            console.log('add')
+            $('#taskModal').modal('show');
+        }else{
+            console.log('edit')
+            get_detail_data(id)
+        }
+    }
+
+    function check() {
+        var task_id = $('#task_id').val()
+        var date = $('#date').val()
+        var mytask =  $('#mytask').val()
+        var priority = $('#priority').val()
+
+        if(date != '' && mytask != '' && priority != ''){
+            if(task_id == ''){
+                save(0)
+            }else{
+                save(task_id)
+            }
+        }else{
+            if(date == ''){
+                get_error('Date is required')
+            }else if(mytask == ''){
+                get_error('Task is required')
+            }else{
+                get_error('Priority is required')
+            }
+        }
+    }
+
+    function save(task_id) {
         $.ajax({
-            type:'POST',
-            url:"<?php echo base_url(); ?>todolist/save/",
+            type: 'POST',
+            url: "<?php echo base_url(); ?>todolist/save/",
             dataType: 'json',
             data: {
+                "task_id": task_id,
                 "date": $('#date').val(),
                 "mytask": $('#mytask').val(),
                 "priority": $('#priority').val()
             },
-            success:function(response){
-                get_success(response.message)
+            success: function(response) {
+                if (response.status == 'success') {
+                    get_success(response.message)
+                    reset_form();
+                } else {
+                    get_error(response.message)
+                }
                 $('#taskModal').modal('hide');
             },
-            error: function(err)
-            {
+            error: function(err) {
                 get_error(err)
             },
-            fail:(function() {
+            fail: (function() {
                 get_error('Failed')
             })
         });
     }
 
-    function update(id)
-    {
+    function update(id, type) {
         $.ajax({
-            type:'PUT',
-            url:"<?php echo api_url(); ?>tasks/"+id,
-            // dataType: 'json',
-            data: {"is_done": 1},
-            contentType: "application/json",
-            success:function(response){
-                get_success(response.message)
-            },
-            error: function(err)
-            {
-                get_error(err)
-            },
-            fail:(function() {
-                get_error('Failed')
-            })
-        });
-    }
-
-    function remove(id)
-    {
-        $.ajax({
-            type:'POST',
-            url:"<?php echo base_url(); ?>todolist/delete/",
+            type: 'POST',
+            url: "<?php echo base_url(); ?>todolist/update",
             dataType: 'json',
-            data: {"id": id},
-            success:function(response){
-                get_success(response.message)
+            data: {
+                "id": id,
+                "type": type
             },
-            error: function(err)
-            {
+            success: function(response) {
+                if (response.status == 'success') {
+                    get_success(response.message)
+                } else {
+                    get_error(response.message)
+                }
+            },
+            error: function(err) {
                 get_error(err)
             },
-            fail:(function() {
+            fail: (function() {
                 get_error('Failed')
             })
         });
     }
 
-    function get_success(message){
+    function get_detail_data(id){
+
+        reset_form();
+
+        $.ajax({
+            type: 'POST',
+            url: "<?php echo base_url(); ?>todolist/get_detail_data",
+            dataType: 'json',
+            data: {
+                "id": id
+            },
+            success: function(response) {
+                if(response.status == 'success'){
+                    append_data_to_table(response)
+                    console.log(response)
+                }else{
+                    get_error(response.message)
+                }
+            },
+            error: function(err) {
+                get_error(err)
+            },
+            fail: (function() {
+                get_error('Failed')
+            })
+        });
+    }
+
+    function reset_form(){
+        $('#task_id').val('')
+        $('#date').val('')
+        $('#mytask').val('')
+        $('#priority').val('')
+    }
+
+    function append_data_to_table(response){
+        $('#task_id').val(response.results.id)
+        $('#date').val(response.results.last_date)
+        $('#mytask').val(response.results.mytask)
+        $('#priority').val(response.results.priority)
+        $('#taskModal').modal('show');
+    }
+
+    function confirmation(id) {
+        Swal.fire({
+            title: 'Do you want to save the changes?',
+            showDenyButton: false,
+            showCancelButton: true,
+            confirmButtonText: `Save`,
+        }).then((result) => {
+            if (result.isConfirmed) {
+                remove(id)
+            }
+        })
+    }
+
+    function remove(id) {
+        $.ajax({
+            type: 'POST',
+            url: "<?php echo base_url(); ?>todolist/delete",
+            dataType: 'json',
+            data: {
+                "id": id
+            },
+            success: function(response) {
+                get_success(response.message)
+            },
+            error: function(err) {
+                get_error(err)
+            },
+            fail: (function() {
+                get_error('Failed')
+            })
+        });
+    }
+
+    function get_success(message) {
         Swal.fire({
             position: 'center',
             icon: 'success',
@@ -166,11 +260,11 @@
             showConfirmButton: false,
             timer: 2000
         }).then((result) => {
-           load_tab()
+            load_tab()
         })
     }
 
-    function get_error(message){
+    function get_error(message) {
         Swal.fire({
             icon: 'error',
             title: 'Oops...',
