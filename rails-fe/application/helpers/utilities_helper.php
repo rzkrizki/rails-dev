@@ -57,72 +57,53 @@ if (!function_exists('display_404')) {
 }
 
 if (!function_exists('optimus_curl')) {
-  function optimus_curl($method, $url, $postdata, $token)
+  function optimus_curl($method, $url, $postdata)
   {
+    $ch = curl_init();
 
-    $curl = curl_init();
+    $postData = json_encode($postdata);
+    $username = '123123123';
+    $password = '123123123';
 
-    if ($token <> NULL) {
-      if ($method <> "GET") {
-        curl_setopt_array($curl, array(
-          CURLOPT_URL => $url,
-          CURLOPT_RETURNTRANSFER => true,
-          CURLOPT_ENCODING => "",
-          CURLOPT_MAXREDIRS => 10,
-          CURLOPT_TIMEOUT => 30,
-          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-          CURLOPT_CUSTOMREQUEST => $method,
-          CURLOPT_POSTFIELDS => http_build_query($postdata),
-          CURLOPT_HTTPHEADER => array(
-            "authorization: Bearer $token",
-            "cache-control: no-cache"
-          ),
-        ));
-      } else {
-        curl_setopt_array($curl, array(
-          CURLOPT_URL => $url,
-          CURLOPT_RETURNTRANSFER => true,
-          CURLOPT_ENCODING => "",
-          CURLOPT_MAXREDIRS => 10,
-          CURLOPT_TIMEOUT => 30,
-          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-          CURLOPT_CUSTOMREQUEST => $method,
-          CURLOPT_HTTPHEADER => array(
-            "authorization: Bearer $token",
-            "cache-control: no-cache"
-          ),
-        ));
-      }
-    } else {
+    // var_dump($method);
+    // die;
 
-      curl_setopt_array($curl, array(
+    curl_setopt_array($ch, array(
         CURLOPT_URL => $url,
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_ENCODING => "",
         CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 30,
+        CURLOPT_TIMEOUT => 3600,
         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
         CURLOPT_CUSTOMREQUEST => $method,
-        CURLOPT_POSTFIELDS => http_build_query($postdata),
+        CURLOPT_POSTFIELDS => $postData,
+        CURLOPT_HTTPAUTH => CURLAUTH_ANY,
+        CURLOPT_USERPWD => "$username:$password",
         CURLOPT_HTTPHEADER => array(
-          "cache-control: no-cache",
-          "content-type: application/x-www-form-urlencoded"
+            "cache-control: no-cache",
+            "content-type: application/json"
         ),
-      ));
+    ));
+
+    $result = curl_exec($ch);
+    $err = curl_error($ch);
+
+    if($err){
+      $response = $err;
     }
 
-    $response = json_decode(curl_exec($curl), true);
-    $err = curl_error($curl);
-    curl_close($curl);
+    $response = json_decode($result);
 
     return $response;
+
+
   }
 }
 
 if (!function_exists('api_url')){
-  function drive_url($id = ''){
-    $drive_url = '' . $id;
-    return $drive_url;
+  function api_url($params = ''){
+    $api_url = 'http://localhost:3000/api/' . $params;
+    return $api_url;
   }
 }
 
